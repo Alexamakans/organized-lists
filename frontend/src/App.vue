@@ -1,47 +1,56 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter();
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
+    <nav>
+      <a @click.prevent="router.back()" href="#">← Back</a>
+      <router-link to="/">Home</router-link>
+      <router-link to="/category/new">New Category</router-link>
+      <router-link to="/item/new">New Item</router-link>
+      <router-link to="/list/new">New List</router-link>
+      <a @click.prevent="router.forward()" href="#">Forward →</a>
+    </nav>
   </header>
-
   <main>
-    <TheWelcome />
+    <router-view />
   </main>
 </template>
 
 <style scoped>
 header {
-  line-height: 1.5;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: var(--color-background-mute);
+  backdrop-filter: blur(6px);
+  padding: 1rem 0;
+  z-index: 100;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
+nav a {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background-color: var(--color-background-soft);
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: normal;
+  transition: background-color 0.2s ease;
+  font-size: clamp(0.8rem, 2vw, 1.2rem);
+}
 
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+nav a:hover {
+  background-color: var(--color-background-hovered);
 }
 </style>
