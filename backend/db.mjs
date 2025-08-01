@@ -4,12 +4,12 @@ import assert from "assert";
 import fs from "fs";
 
 /** @typedef {import("./types").Category} Category */
-/** @typedef {import("./types").CategoryPatch} CategoryPatch */
+/** @typedef {import("./types").CategoryPartial} CategoryPartial */
 /** @typedef {import("./types").List} List */
-/** @typedef {import("./types").ListPatch} ListPatch */
+/** @typedef {import("./types").ListPartial} ListPartial */
 /** @typedef {import("./types").ListRef} ListRef */
 /** @typedef {import("./types").Item} Item */
-/** @typedef {import("./types").ItemPatch} ItemPatch */
+/** @typedef {import("./types").ItemPartial} ItemPartial */
 /** @typedef {import("./types").ItemRef} ItemRef */
 
 /**
@@ -25,6 +25,7 @@ import fs from "fs";
 export class DB {
   /**
    * @param {string} filepath
+   * @throws {Error}
    */
   constructor(filepath) {
     this.assertNonEmptyString(filepath, "filepath");
@@ -47,7 +48,7 @@ export class DB {
   }
 
   /**
-   * @returns boolean
+   * @returns boolean - Returns false in addition to logging an error if it fails.
    */
   save() {
     try {
@@ -60,7 +61,8 @@ export class DB {
   }
 
   /**
-   * @returns boolean
+   * @returns boolean - Returns false if file does not exist.
+   * @throws {Error}
    */
   load() {
     try {
@@ -84,9 +86,11 @@ export class DB {
 
   /**
    * @param {Category} category
+   * @returns Category
+   * @throws {Error}
    */
   postCategory(category) {
-    assert(category !== null && typeof category === "object", "not an object");
+    this.assertValidObject(category, "category");
     this.assertNonEmptyString(category.name, "name");
     const createdAt = new Date();
     const modifiedAt = createdAt;
@@ -105,11 +109,13 @@ export class DB {
 
   /**
    * @param {number} id
-   * @param {CategoryPatch} category
+   * @param {CategoryPartial} category
+   * @returns Category
+   * @throws {Error}
    */
   patchCategory(id, category) {
     this.assertValidId(id);
-    assert(category !== null && typeof category === "object", "not an object");
+    this.assertValidObject(category);
     const existing = this.data.categories.find((e) => e.id === id);
     if (!existing) {
       return null;
@@ -129,6 +135,8 @@ export class DB {
 
   /**
    * @param {number} id
+   * @returns boolean
+   * @throws {Error}
    */
   deleteCategory(id) {
     this.assertValidId(id);
@@ -144,6 +152,7 @@ export class DB {
   /**
    * @param {number} id
    * @returns Category
+   * @throws {Error}
    */
   getCategory(id) {
     this.assertValidId(id);
@@ -158,11 +167,14 @@ export class DB {
   }
 
   /**
-   * @param {Item} item
+   * @param {ItemPartial} item
+   * @returns {Item}
+   * @throws {Error}
    */
   postItem(item) {
-    assert(item !== null && typeof item === "object", "not an object");
+    this.assertValidObject(item);
     this.assertNonEmptyString(item.name, "name");
+    const name = /** @type {string} */ (item.name);
     if (!item.categoryIds) {
       item.categoryIds = [];
     }
@@ -176,7 +188,7 @@ export class DB {
       modifiedAt = createdAt;
     const newItem = {
       id: this.data.nextItemId++,
-      name: item.name,
+      name: name,
       categoryIds: item.categoryIds || [],
       createdAt,
       modifiedAt,
@@ -189,11 +201,13 @@ export class DB {
 
   /**
    * @param {number} id
-   * @param {ItemPatch} item
+   * @param {ItemPartial} item
+   * @returns Item
+   * @throws {Error}
    */
   patchItem(id, item) {
     this.assertValidId(id);
-    assert(item !== null && typeof item === "object", "not an object");
+    this.assertValidObject(item);
     const existing = this.data.items.find((e) => e.id === id);
     if (!existing) {
       return null;
@@ -217,6 +231,8 @@ export class DB {
 
   /**
    * @param {number} id
+   * @returns boolean
+   * @throws {Error}
    */
   deleteItem(id) {
     this.assertValidId(id);
@@ -232,6 +248,7 @@ export class DB {
   /**
    * @param {number} id
    * @returns Item
+   * @throws {Error}
    */
   getItem(id) {
     this.assertValidId(id);
@@ -247,9 +264,11 @@ export class DB {
 
   /**
    * @param {List} list
+   * @returns List
+   * @throws {Error}
    */
   postList(list) {
-    assert(list !== null && typeof list === "object", "not an object");
+    this.assertValidObject(list);
     this.assertNonEmptyString(list.name, "name");
     list.itemRefs?.forEach((ref, i) =>
       this.assertValidItemRef(ref, `itemRef index ${i}`),
@@ -275,38 +294,42 @@ export class DB {
 
   /**
    * @param {number} id
-   * @param {ListPatch} list
+   * @param {ListPartial} list
+   * @returns List
+   * @throws {Error}
    */
   patchList(id, list) {
     this.assertValidId(id);
     assert(list !== null && typeof list === "object");
-    const existing = this.data.lists.find((e) => e.id === id);
-    if (!existing) {
+    const patched = this.data.lists.find((e) => e.id === id);
+    if (!patched) {
       return null;
     }
     let modified = false;
     if (list.name) {
-      existing.name = list.name;
+      patched.name = list.name;
       modified = true;
     }
     if (list.itemRefs) {
-      existing.itemRefs = list.itemRefs;
+      patched.itemRefs = list.itemRefs;
       modified = true;
     }
     if (list.listRefs) {
-      existing.listRefs = list.listRefs;
+      patched.listRefs = list.listRefs;
       modified = true;
     }
     if (modified) {
-      existing.modifiedAt = new Date();
-      this.assertValidList(existing, `update list with id ${id}`);
+      patched.modifiedAt = new Date();
+      this.assertValidList(patched, `update list with id ${id}`);
       this.save();
     }
-    return existing;
+    return patched;
   }
 
   /**
    * @param {number} id
+   * @returns boolean - True if deleted, false if didn't exist.
+   * @throws {Error}
    */
   deleteList(id) {
     this.assertValidId(id);
@@ -321,6 +344,8 @@ export class DB {
 
   /**
    * @param {number} id
+   * @returns List
+   * @throws {Error}
    */
   getList(id) {
     this.assertValidId(id);
@@ -330,56 +355,37 @@ export class DB {
   /**
    * @param {Category} category
    * @param {string} messageHeader
+   * @throws {Error}
    */
   assertValidCategory(category, messageHeader) {
     this.assertValidId(category.id, messageHeader);
     this.assertNonEmptyString(category.name, `${messageHeader}: name`);
 
-    assert(
-      category.modifiedAt instanceof Date,
-      `${messageHeader}: modifiedAt: not a Date`,
-    );
-    assert(
-      category.createdAt instanceof Date,
-      `${messageHeader}: createdAt: not a Date`,
-    );
-    assert(
-      category.createdAt <= category.modifiedAt,
-      `${messageHeader}: createdAt is later than modifiedAt`,
-    );
+    this.assertValidCreatedAndModifiedAt(category, messageHeader);
   }
 
   /**
-   * @param {Item} item
+   * @param {Item | ItemPartial} item
    * @param {string} messageHeader
+   * @throws {Error}
    */
   assertValidItem(item, messageHeader) {
     this.assertValidId(item.id, messageHeader);
     this.assertNonEmptyString(item.name, `${messageHeader}: name`);
     assert(
-      !item.categoryIds.some(
+      !item.categoryIds?.some(
         (categoryId) =>
           categoryId < 0 || this.getCategory(categoryId) === undefined,
       ),
     );
 
-    assert(
-      item.modifiedAt instanceof Date,
-      `${messageHeader}: modifiedAt: not a Date`,
-    );
-    assert(
-      item.createdAt instanceof Date,
-      `${messageHeader}: createdAt: not a Date`,
-    );
-    assert(
-      item.createdAt <= item.modifiedAt,
-      `${messageHeader}: createdAt is later than modifiedAt`,
-    );
+    this.assertValidCreatedAndModifiedAt(item, messageHeader);
   }
 
   /**
    * @param {List} list
    * @param {string} messageHeader
+   * @throws {Error}
    */
   assertValidList(list, messageHeader) {
     this.assertValidId(list.id, messageHeader);
@@ -411,46 +417,26 @@ export class DB {
       `${messageHeader}: circular reference`,
     );
 
-    assert(
-      list.modifiedAt instanceof Date,
-      `${messageHeader}: modifiedAt: not a Date`,
-    );
-    assert(
-      list.createdAt instanceof Date,
-      `${messageHeader}: createdAt: not a Date`,
-    );
-    assert(
-      list.createdAt <= list.modifiedAt,
-      `${messageHeader}: createdAt is later than modifiedAt`,
-    );
+    this.assertValidCreatedAndModifiedAt(list, messageHeader);
   }
 
   /**
    * @param {ListRef} listRef
    * @param {string} messageHeader
+   * @throws {Error}
    */
   assertValidListRef(listRef, messageHeader) {
     this.assertValidId(listRef.listId, messageHeader);
     this.assertValidCount(listRef.count, messageHeader);
     assert(this.getLists().some((e) => e.id === listRef.listId));
 
-    assert(
-      listRef.modifiedAt instanceof Date,
-      `${messageHeader}: modifiedAt: not a Date`,
-    );
-    assert(
-      listRef.createdAt instanceof Date,
-      `${messageHeader}: createdAt: not a Date`,
-    );
-    assert(
-      listRef.createdAt <= listRef.modifiedAt,
-      `${messageHeader}: createdAt is later than modifiedAt`,
-    );
+    this.assertValidCreatedAndModifiedAt(listRef, messageHeader);
   }
 
   /**
    * @param {ItemRef} itemRef
    * @param {string} messageHeader
+   * @throws {Error}
    */
   assertValidItemRef(itemRef, messageHeader) {
     this.assertValidId(itemRef.itemId, messageHeader);
@@ -459,24 +445,41 @@ export class DB {
       this.getItems().some((e) => e.id === itemRef.itemId),
       `${messageHeader}: references invalid item id`,
     );
+    this.assertValidCreatedAndModifiedAt(itemRef, messageHeader);
+  }
 
+  /**
+   * @param {Category | CategoryPartial | Item | ItemPartial | List | ListPartial} obj
+   * @param {string} [messageHeader]
+   * @throws {Error}
+   */
+  assertValidCreatedAndModifiedAt(obj, messageHeader) {
+    const base = messageHeader ? `${messageHeader}: ` : "";
+    assert(obj.modifiedAt instanceof Date, `${base}modifiedAt: not a Date`);
+    assert(obj.createdAt instanceof Date, `${base}createdAt: not a Date`);
     assert(
-      itemRef.modifiedAt instanceof Date,
-      `${messageHeader}: modifiedAt: not a Date`,
-    );
-    assert(
-      itemRef.createdAt instanceof Date,
-      `${messageHeader}: createdAt: not a Date`,
-    );
-    assert(
-      itemRef.createdAt <= itemRef.modifiedAt,
-      `${messageHeader}: createdAt is later than modifiedAt`,
+      obj.createdAt <= obj.modifiedAt,
+      `${base}createdAt is later than modifiedAt`,
     );
   }
 
   /**
-   * @param {number} id
+   * @param {*} obj
    * @param {string} [messageHeader]
+   * @throws {Error}
+   */
+  assertValidObject(obj, messageHeader) {
+    const base = messageHeader ? `${messageHeader}: ` : "";
+    assert(
+      obj !== null && obj !== undefined && typeof obj === "object",
+      `${base}not an object`,
+    );
+  }
+
+  /**
+   * @param {any} id
+   * @param {string} [messageHeader]
+   * @throws {Error}
    */
   assertValidId(id, messageHeader) {
     const base = messageHeader ? `${messageHeader}: ` : "";
@@ -487,6 +490,7 @@ export class DB {
   /**
    * @param {number} count
    * @param {string} [messageHeader]
+   * @throws {Error}
    */
   assertValidCount(count, messageHeader) {
     const base = messageHeader ? `${messageHeader}: ` : "";
@@ -495,11 +499,14 @@ export class DB {
   }
 
   /**
-   * @param {string} s
+   * @param {*} s
    * @param {string} [messageHeader]
+   * @throws {Error}
    */
   assertNonEmptyString(s, messageHeader) {
     const base = messageHeader ? `${messageHeader}: ` : "";
+    assert(s !== null, `${base}is null`);
+    assert(s !== undefined, `${base}is undefined`);
     assert(typeof s === "string", `${base}not a string`);
     assert(s !== "", `${base}was empty`);
   }

@@ -16,7 +16,9 @@ const router = useRouter();
     </nav>
   </header>
   <main>
+    <div class="container">
     <router-view />
+    </div>
   </main>
 </template>
 
@@ -46,11 +48,20 @@ nav a {
   color: var(--color-text);
   text-decoration: none;
   font-weight: normal;
-  transition: background-color 0.2s ease;
+  transition: background 0.2s ease;
   font-size: clamp(0.7rem, 2vw, 1.2rem);
 }
 
-nav a:hover {
+nav a:hover, nav a:focus {
   background-color: var(--color-background-hovered);
+}
+
+.container {
+  display: flex;
+  flex-flow: column;
+  margin-left: auto;
+  margin-right: auto;
+  width: 70%;
+  height: 100%;
 }
 </style>

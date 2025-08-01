@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, inject } from 'vue'
 import ItemTable from '@/components/ItemTable.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import { Icon } from '@iconify/vue'
 
-const baseUrl = 'http://localhost:60001'
+const apiBaseUrl = inject('apiBaseUrl')
 
 async function getLists(searchRegex: [string]) {
-  let url = `${baseUrl}/api/v1/list`
+  let url = `${apiBaseUrl}/list`
   if (searchRegex) {
     url = `${url}?name=${searchRegex}`
   }
@@ -35,7 +35,7 @@ async function getLists(searchRegex: [string]) {
 }
 
 async function deleteList(id: number) {
-  const res = await fetch(`${baseUrl}/api/v1/list/${id}`, {
+  const res = await fetch(`${apiBaseUrl}/list/${id}`, {
     method: 'DELETE',
   })
   if (res.status !== 204) {
@@ -109,15 +109,6 @@ watch(search, async (newValue, oldValue) => {
 </template>
 
 <style scoped>
-.table-container {
-  display: flex;
-  flex-flow: column;
-  margin-left: auto;
-  margin-right: auto;
-  width: 70%;
-  height: 100%;
-}
-
 .item-table-td-1,
 .item-table-td-2 {
   text-align: center;

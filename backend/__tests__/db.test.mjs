@@ -69,7 +69,7 @@ describe("DB", () => {
 
   test("fails to post item with invalid category", () => {
     expect(() => {
-      db.postItem("Fork", [1234]);
+      db.postItem({ name: "Fork", categoryIds: [1234] });
     }).toThrow();
   });
 

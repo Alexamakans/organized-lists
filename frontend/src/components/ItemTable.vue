@@ -23,7 +23,7 @@ defineProps<{
         </th>
       </tr>
     </thead>
-    <tbody class="item-table-tbody">
+    <tbody v-if="data.length !== 0" class="item-table-tbody">
       <tr
         v-for="(entity, i) in data"
         :key="`entity-${entity.name}`"
@@ -38,6 +38,11 @@ item-table-td-${j}`"
         >
           <slot :name="`column${j}`" :entity="entity"></slot>
         </td>
+      </tr>
+    </tbody>
+    <tbody v-else class="item-table-tbody">
+      <tr class="item-table-tr">
+        <td :colspan="headers.length" style="text-align: center">No results...</td>
       </tr>
     </tbody>
   </table>

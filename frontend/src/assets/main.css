@@ -23,15 +23,23 @@ main {
 }
 
 #app {
+  color: var(--color-text);
+  background: var(--color-background);
+
   margin: 0 auto;
   padding: 1em;
   font-weight: normal;
-
-  color: var(--color-text);
-  background: var(--color-background);
 }
 
 input {
   color: var(--color-text);
   background: var(--color-background);
+  border: var(--border-style) var(--border-thickness) var(--color-border);
+  border-radius: var(--border-radius);
+
+  width: 100%;
+  margin-top: 0.2rem;
+  padding: 0.4rem;
+
+  font-size: 1rem;
 }

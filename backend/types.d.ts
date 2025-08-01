@@ -5,7 +5,7 @@ export type Category = {
   modifiedAt: Date;
 };
 
-export type CategoryPatch = Partial<Category>;
+export type CategoryPartial = Partial<Category>;
 
 export type Item = {
   id: number;
@@ -15,7 +15,7 @@ export type Item = {
   categoryIds: number[];
 };
 
-export type ItemPatch = Partial<Item>;
+export type ItemPartial = Partial<Item>;
 
 export type ItemRef = {
   itemId: number;
@@ -33,7 +33,7 @@ export type List = {
   listRefs: ListRef[];
 };
 
-export type ListPatch = Partial<List>;
+export type ListPartial = Partial<List>;
 
 export type ListRef = {
   listId: number;

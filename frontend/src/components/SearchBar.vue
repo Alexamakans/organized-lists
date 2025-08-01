@@ -40,10 +40,4 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.search-bar-input {
-  width: 100%;
-  font-size: 1rem;
-  border: var(--border-style) var(--border-thickness) var(--color-border);
-  border-radius: var(--border-radius);
-}
 </style>
