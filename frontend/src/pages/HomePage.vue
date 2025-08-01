@@ -4,10 +4,12 @@ import ItemTable from '@/components/ItemTable.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import { Icon } from '@iconify/vue'
 
+const baseUrl = 'http://localhost:60001'
+
 async function getLists(searchRegex: [string]) {
-  let url = 'http://192.168.0.107:60001/api/v1/list';
+  let url = `${baseUrl}/api/v1/list`
   if (searchRegex) {
-    url = `${url}?name=${searchRegex}`;
+    url = `${url}?name=${searchRegex}`
   }
   const res = await fetch(url, {
     method: 'GET',
@@ -33,7 +35,7 @@ async function getLists(searchRegex: [string]) {
 }
 
 async function deleteList(id: number) {
-  const res = await fetch(`http://192.168.0.107:60001/api/v1/list/${id}`, {
+  const res = await fetch(`${baseUrl}/api/v1/list/${id}`, {
     method: 'DELETE',
   })
   if (res.status !== 204) {
@@ -48,19 +50,21 @@ function editList(id: number) {
 }
 
 const listHeaders = ['Name', 'Created', 'Modified', '']
-const listColumnWidths = [65, 12.5, 12.5, 10];
+const dateWidth = 15
+const buttonsWidth = 12
+const listColumnWidths = [100 - 2 * dateWidth - buttonsWidth, dateWidth, dateWidth, buttonsWidth]
 const listData = ref([])
 onMounted(async () => {
   listData.value = await getLists()
 })
 
-const search = ref('');
+const search = ref('')
 
 watch(search, async (newValue, oldValue) => {
   if (newValue !== oldValue) {
-    listData.value = await getLists(newValue);
+    listData.value = await getLists(newValue)
   }
-});
+})
 </script>
 
 <template>
@@ -72,24 +76,22 @@ watch(search, async (newValue, oldValue) => {
       </template>
       <template #column1="{ entity }">
         {{
-          entity.createdAt.toLocaleString('en-gb', {
-            month: 'short',
-            year: 'numeric',
-            day: 'numeric',
+          entity.createdAt.toLocaleString('en-GB', {
+            dateStyle: 'medium',
+            timeStyle: 'short',
           })
         }}
       </template>
       <template #column2="{ entity }">
         {{
-          entity.modifiedAt.toLocaleString('en-gb', {
-            month: 'short',
-            year: 'numeric',
-            day: 'numeric',
+          entity.modifiedAt.toLocaleString('en-GB', {
+            dateStyle: 'medium',
+            timeStyle: 'short',
           })
         }}
       </template>
       <template #column3="{ entity }">
-        <div style="text-align: center;">
+        <div style="text-align: center">
           <Icon
             @click="() => editList(entity.id)"
             icon="mdi:edit-circle-outline"
@@ -108,12 +110,22 @@ watch(search, async (newValue, oldValue) => {
 
 <style scoped>
 .table-container {
-  width: 100%;
+  display: flex;
+  flex-flow: column;
+  margin-left: auto;
+  margin-right: auto;
+  width: 70%;
   height: 100%;
 }
 
+.item-table-td-1,
+.item-table-td-2 {
+  text-align: center;
+}
+
 .iconify {
-   font-size: 32px;
+  font-size: clamp(2em, 2vw, 4em);
+  margin: 0.1em 0.3em;
 }
 
 .iconify:hover {

@@ -47,7 +47,7 @@ nav a {
   text-decoration: none;
   font-weight: normal;
   transition: background-color 0.2s ease;
-  font-size: clamp(0.8rem, 2vw, 1.2rem);
+  font-size: clamp(0.7rem, 2vw, 1.2rem);
 }
 
 nav a:hover {

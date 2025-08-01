@@ -45,7 +45,7 @@ function getLists(db, req, res) {
   /** @type List[] */
   let lists;
   if (typeof name === "string") {
-    const nameRegex = new RegExp(name);
+    const nameRegex = new RegExp(name, "i");
 
     lists = db
       .getLists()

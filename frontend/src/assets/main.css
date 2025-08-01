@@ -10,7 +10,7 @@
   --border-thickness: 2px;
   --border-radius: 2px;
 
-  --header-height: 7%;
+  --header-height: clamp(5em, 2vw, 4em);
 }
 
 header {

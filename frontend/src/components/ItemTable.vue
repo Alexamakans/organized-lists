@@ -7,24 +7,36 @@ defineProps<{
 </script>
 
 <template>
-  <table>
-    <colgroup>
+  <table class="item-table">
+    <colgroup class="item-table-colgroup">
       <col
         v-for="(_, i) in headers"
         :key="`colgroup${i}`"
-        :style="columnWidths.length === headers.length ? 'width: ' + columnWidths[i] + '%;' : ''" />
+        :style="columnWidths.length === headers.length ? 'width: ' + columnWidths[i] + '%;' : ''"
+        class="item-table-col"
+      />
     </colgroup>
-    <thead>
-      <tr>
-        <th v-for="(header, i) in headers" :key="`${header}${i}`" class="header-item">
+    <thead class="item-table-thead">
+      <tr class="item-table-tr">
+        <th v-for="(header, i) in headers" :key="`${header}${i}`" class="item-table-th">
           {{ header }}
         </th>
       </tr>
     </thead>
-    <tbody>
-      <tr v-for="entity in data" :key="`entity-${entity.name}`" class="table-rows">
-        <td v-for="(header, i) in headers" :key="`${header}${i}`">
-          <slot :name="`column${i}`" :entity="entity"></slot>
+    <tbody class="item-table-tbody">
+      <tr
+        v-for="(entity, i) in data"
+        :key="`entity-${entity.name}`"
+        :class="`item-table-tr
+item-table-tr-${i}`"
+      >
+        <td
+          v-for="(header, j) in headers"
+          :key="`${header}${j}`"
+          :class="`item-table-td
+item-table-td-${j}`"
+        >
+          <slot :name="`column${j}`" :entity="entity"></slot>
         </td>
       </tr>
     </tbody>
@@ -32,7 +44,7 @@ defineProps<{
 </template>
 
 <style scoped>
-table {
+.item-table {
   width: 100%;
   height: 100%;
 
@@ -42,14 +54,16 @@ table {
 }
 
 td {
-  padding-left: 15px;
+  padding: 0.25em;
 }
 
-thead>tr:nth-child(even), tbody>tr:nth-child(odd) {
+.item-table-thead > .item-table-tr:nth-child(even),
+.item-table-tbody > .item-table-tr:nth-child(odd) {
   background: var(--color-background-soft);
 }
 
-thead>tr:nth-child(odd), tbody>tr:nth-child(even) {
+.item-table-thead > .item-table-tr:nth-child(odd),
+.item-table-tbody > .item-table-tr:nth-child(even) {
   background: var(--color-background-mute);
 }
 </style>
